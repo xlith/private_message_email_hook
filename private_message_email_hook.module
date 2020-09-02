@@ -50,6 +50,7 @@ function private_message_email_hook_private_message_thread_update(PrivateMessage
   }
 
   $toArray = [];
+
   foreach ($entity->getMembers() as $member) {
     $memberMail = $member->getEmail();
     if ($memberMail !== \Drupal::currentUser()->getEmail()) {
@@ -74,11 +75,11 @@ function private_message_email_hook_private_message_thread_update(PrivateMessage
   $body = str_replace('@message_thread_url', $threadUrl, $body);
   $body = str_replace('@sender', \Drupal::currentUser()
     ->getDisplayName(), $body);
+
   $send = true;
   foreach ($toArray as $to) {
-
-    $body = str_replace('@user', $to['display_name'], $body);
-    $params['body'] = $body;
+    $bodyInLoop = str_replace('@user', $to['display_name'], $body);
+    $params['body'] = $bodyInLoop;
     $result = $mailManager->mail($module, $key, $to['mail'], $langcode, $params, NULL, $send);
     if ($result['result'] != true) {
       $message = t('There was a problem sending your email notification to @email.', array('@email' => $to['mail']));
