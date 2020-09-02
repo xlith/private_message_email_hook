@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Private Message Email Hook module.
+ *
+ */
+
+
+use Drupal\Core\Entity\Entity;
+use Drupal\private_message\Entity\PrivateMessage;
+use Drupal\private_message\Entity\PrivateMessageThread;
+
+
+/**
+ * Implements hook_mail().
+ *
+ * @param $key
+ * @param $message
+ * @param $params
+ */
+function private_message_email_hook_mail($key, &$message, $params) {
+  $options = [
+    'langcode' => $message['langcode'],
+  ];
+
+  switch ($key) {
+    case 'private_message_email_hook_new_private_message':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = $params['title'];
+      $message['body'][] = $params['body'];
+      break;
+  }
+}
+
+
+/**
+ * Implements hook_entity_update().
+ *
+ * @param \Drupal\private_message\Entity\PrivateMessageThread $entity
+ *
+ * @throws \Drupal\Core\Entity\EntityMalformedException
+ */
+function private_message_email_hook_private_message_thread_update(PrivateMessageThread $entity) {
+
+  if (\Drupal::configFactory()
+      ->get('private_message_email_hook.settings')
+      ->get('status') !== 1) {
+    return;
+  }
+
+  $toArray = [];
+  foreach ($entity->getMembers() as $member) {
+    $memberMail = $member->getEmail();
+    if ($memberMail !== \Drupal::currentUser()->getEmail()) {
+      $toArray[] = [
+        'mail' => $memberMail,
+        'display_name' => $member->getDisplayName(),
+      ];
+    }
+  }
+
+  $mailManager = \Drupal::service('plugin.manager.mail');
+  $module = 'private_message_email_hook';
+  $key = 'private_message_email_hook_new_private_message';
+  $params['message'] = \Drupal::configFactory()->get('private_message_email_hook.settings')->get('mail_body')['value'];
+  $params['title'] = \Drupal::configFactory()->get('private_message_email_hook.settings')->get('mail_title');
+  $threadUrl = $entity->toLink(t('Mesajlar'), 'canonical', ['absolute' => TRUE])
+    ->toString()
+    ->getGeneratedLink();
+
+  $langcode = \Drupal::currentUser()->getPreferredLangcode();
+  $body = \Drupal::configFactory()->get('private_message_email_hook.settings')->get('mail_body')['value'];
+  $body = str_replace('@message_thread_url', $threadUrl, $body);
+  $body = str_replace('@sender', \Drupal::currentUser()
+    ->getDisplayName(), $body);
+  $send = true;
+  foreach ($toArray as $to) {
+
+    $body = str_replace('@user', $to['display_name'], $body);
+    $params['body'] = $body;
+    $result = $mailManager->mail($module, $key, $to['mail'], $langcode, $params, NULL, $send);
+    if ($result['result'] != true) {
+      $message = t('There was a problem sending your email notification to @email.', array('@email' => $to['mail']));
+      \Drupal::logger('mail-log')->error($message);
+      return;
+    }
+    $message = t('An email notification has been sent to @email ', array('@email' => $to['mail']));
+    \Drupal::logger('mail-log')->notice($message);
+  }
+}

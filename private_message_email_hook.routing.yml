@@ -1,0 +1,7 @@
+private_message_email_hook.settings_form:
+  path: '/admin/config/system/private-message-email-hook'
+  defaults:
+    _title: 'Private Message Email Hook settings'
+    _form: 'Drupal\private_message_email_hook\Form\SettingsForm'
+  requirements:
+    _permission: 'administer private message module'

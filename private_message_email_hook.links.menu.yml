@@ -1,0 +1,5 @@
+private_message_email_hook.config:
+  title: 'Private Message Email Hook'
+  description: 'Configure email message send to users when a private message received'
+  parent: private_message.admin_config
+  route_name: private_message_email_hook.settings_form

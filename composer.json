@@ -1,0 +1,24 @@
+{
+    "name": "drupal/private_message_email_hook",
+    "type": "drupal-module",
+    "description": "Simple email hook module designed for private_message.",
+    "keywords": [
+        "Drupal",
+        "Private Message",
+        "Email"
+    ],
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Civan Yavuzsen",
+            "email": "civanyavuzsen@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/xlith/private_message_email_hook/issues",
+        "source": "https://github.com/xlith/private_message_email_hook"
+    },
+    "require": {
+        "drupal/private_message": "2.x-dev"
+    }
+}
