@@ -48,7 +48,7 @@ class SettingsForm extends ConfigFormBase {
         ->get('mail_body')['format'],
       '#default_value' => $this->config('private_message_email_hook.settings')
         ->get('mail_body')['value'],
-      '#description' => $this->t('You can use @user - @sender - @private_message_thread_url as variables.'),
+      '#description' => $this->t('You can use @user - @sender - @message_thread_url as variables.'),
     ];
     return parent::buildForm($form, $form_state);
   }
