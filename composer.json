@@ -1,5 +1,5 @@
 {
-    "name": "drupal/private_message_email_hook",
+    "name": "xlith/private_message_email_hook",
     "type": "drupal-module",
     "description": "Simple email hook module designed for private_message.",
     "keywords": [
